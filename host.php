@@ -1,17 +1,13 @@
 <?php
-// http://forum.synology.com/enu/viewtopic.php?f=10&t=41181&start=30
-
 	define('USER_IS_PREMIUM', 6); 
-	// GetDownloadInfo result array indexes
-	define('DEBUG_TO_FILE', FALSE); // if false echo debug info
-	define("DEBUG_FILE", "/volume1/Downloads/putio.log");
 	
 	class SynoFileHostingPutio {   
 		private $Url;
 		private $Username;
 		private $Password;
 		private $HostInfo;
-		private $PUTIO_COOKIE = '/tmp/putio4.cookie';
+		private $AccessToken;
+		private $PUTIO_COOKIE = '/tmp/putio.cookie';
 		private $PUTIO_LOGIN_URL = 'https://put.io/login';
 
 		public function __construct($Url, $Username, $Password, $HostInfo) {
@@ -87,6 +83,7 @@
 			if (FALSE != $LoginInfo && file_exists($this->PUTIO_COOKIE)) {
 				$cookieData = file_get_contents($this->PUTIO_COOKIE);
 				if(strpos($cookieData,'session2') !== false) {
+					$this->PutioAccessToken();
 					$ret = USER_IS_PREMIUM;
 					return $ret;
 				} else {
@@ -96,6 +93,25 @@
 			}
 			$ret = LOGIN_FAIL;
 			return $ret;
+		}
+
+		private function PutioAccessToken(){
+			// create curl for get access token
+			$curl = curl_init();
+			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
+			curl_setopt($curl, CURLOPT_USERAGENT, DOWNLOAD_STATION_USER_AGENT);
+			curl_setopt($curl, CURLOPT_COOKIEFILE, $this->PUTIO_COOKIE);
+			curl_setopt($curl, CURLOPT_HEADER, TRUE);
+			curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+			curl_setopt($curl, CURLOPT_URL, 'https://soon.put.io/v2/account/info?access_token=1');
+			$AccessInfo = curl_exec($curl);
+			$header_size = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
+			$header = substr($AccessInfo, 0, $header_size);
+			$body = substr($AccessInfo, $header_size);
+			curl_close($curl);
+
+			$obj = json_decode($body, TRUE);
+			print($obj['info']['access_token']);
 		}
 	}
 ?>
