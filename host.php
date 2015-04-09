@@ -11,14 +11,14 @@
 		private $PUTIO_LOGIN_URL = 'https://put.io/login';
 
 		public function __construct($Url, $Username, $Password, $HostInfo) {
-			$this->Url = $Url;;   
+			$this->Url = $Url;   
 			$this->Username = $Username;
 			$this->Password = $Password;
 			$this->HostInfo = $HostInfo; // not used   
 		}
 
 		//This function returns download url.
-		public function GetDownloadInfo() {
+		public function GetDownloadInfo($ClearCookie) {
 			$DownloadInfo = array(); // result
 
 			//Check to see is http or https being used
@@ -31,13 +31,22 @@
 			   return $DownloadInfo;
 			}
 
-			//Format URL as http\s://USERNAME:PASSWORD@URL
 			$urlTidy = str_replace($newHttp,"", $this->Url); 
-			$newUrl = $newHttp . $this->Username . ":" . $this->Password . "@" . $this->Url;
+			$urlArray = explode('/', $urlTidy);
 
-			$DownloadInfo[DOWNLOAD_URL] = $newUrl;
+			$this->PutioAccessToken();
 
-			//debug("URL: ", $DownloadInfo[DOWNLOAD_URL]);   
+			if ($urlArray[1] === 'v2') {
+				$DownloadInfo[DOWNLOAD_URL] = 'https://put.io/v2/files/' . $urlArray[3] . '/download?token=' . $this->AccessToken;
+			} elseif ($urlArray[1] === 'files' || $urlArray[1] === 'file') {
+				$DownloadInfo[DOWNLOAD_URL] = 'https://put.io/v2/files/' . $urlArray[2] . '/download?token=' . $this->AccessToken;
+			} else {
+				$DownloadInfo[DOWNLOAD_ERROR] = ERR_FILE_NO_EXIST;
+			}
+
+			$this->Url = $DownloadInfo[DOWNLOAD_URL];  
+			print('DownloadInfo: '. $DownloadInfo[DOWNLOAD_URL]);
+
 			return $DownloadInfo;
 		}
 
@@ -83,7 +92,6 @@
 			if (FALSE != $LoginInfo && file_exists($this->PUTIO_COOKIE)) {
 				$cookieData = file_get_contents($this->PUTIO_COOKIE);
 				if(strpos($cookieData,'session2') !== false) {
-					$this->PutioAccessToken();
 					$ret = USER_IS_PREMIUM;
 					return $ret;
 				} else {
@@ -96,7 +104,7 @@
 		}
 
 		private function PutioAccessToken(){
-			// create curl for get access token
+			// create curl for getting access token
 			$curl = curl_init();
 			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
 			curl_setopt($curl, CURLOPT_USERAGENT, DOWNLOAD_STATION_USER_AGENT);
@@ -111,7 +119,6 @@
 			curl_close($curl);
 
 			$obj = json_decode($body, TRUE);
-			print($obj['info']['access_token']);
+			$this->AccessToken = $obj['info']['access_token'];
 		}
 	}
-?>
