@@ -3,7 +3,6 @@ Putio file hosting module for Synology Download Station
 
 Install
 =========================
-In a Linux terminal, go to the appropriate folder holding putio.php and INFO and run the following command
 #
 1. [Download putio.host](http://barisariburnu.github.io/projects/synology-putio)
 2. Login to Synology NAS (https://YOUR_SYNOLOGY_IP:5001/webman/index.cgi)
