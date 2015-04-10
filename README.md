@@ -5,7 +5,7 @@ Install
 =========================
 In a Linux terminal, go to the appropriate folder holding putio.php and INFO and run the following command
 #
-tar zcf putio.host INFO putio.php
+[Download putio.host](http://barisariburnu.github.io/projects/synology-putio)
 
 1. Login to Synology NAS (https://YOUR_SYNOLOGY_IP:5001/webman/index.cgi)
 2. Open Download Station package
