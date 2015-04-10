@@ -1,5 +1,10 @@
 <?php
 	define('USER_IS_PREMIUM', 6); 
+	define('LOGIN_FAIL', 4);
+	define('USER_IS_PREMIUM', 6);
+	define('ERR_FILE_NO_EXIST', 114);
+	define('DOWNLOAD_STATION_USER_AGENT', "Mozilla/4.0 (compatible; MSIE 6.1; Windows XP)");
+	define('DOWNLOAD_URL', 'downloadurl'); // Real download url
 	
 	class SynoFileHostingPutio {   
 		private $Url;
@@ -18,36 +23,16 @@
 		}
 
 		//This function returns download url.
-		public function GetDownloadInfo($ClearCookie) {
-			$DownloadInfo = array(); // result
-
-			//Check to see is http or https being used
-			if (substr($this->Url,0,7) == "http://") {
-			   $newHttp = "http://";
-			} else if (substr($this->Url,0,8) == "https://") {
-			   $newHttp = "https://";
+		public function GetDownloadInfo() {
+			
+			if($this->PutioLogin()==LOGIN_FAIL) {
+				$DownloadInfo = array();
+				$DownloadInfo[DOWNLOAD_ERROR] = ERR_REQUIRED_PREMIUM;
+				print('DOWNLOAD_ERROR: ' . $DownloadInfo[DOWNLOAD_ERROR]);
+				return $DownloadInfo[DOWNLOAD_ERROR];
 			} else {
-			   $DownloadInfo[DOWNLOAD_URL] = ERR_NOT_SUPPORT_TYPE;
-			   return $DownloadInfo;
+				return $this->getDownloadLink();
 			}
-
-			$urlTidy = str_replace($newHttp,"", $this->Url); 
-			$urlArray = explode('/', $urlTidy);
-
-			$this->PutioAccessToken();
-
-			if ($urlArray[1] === 'v2') {
-				$DownloadInfo[DOWNLOAD_URL] = 'https://put.io/v2/files/' . $urlArray[3] . '/download?token=' . $this->AccessToken;
-			} elseif ($urlArray[1] === 'files' || $urlArray[1] === 'file') {
-				$DownloadInfo[DOWNLOAD_URL] = 'https://put.io/v2/files/' . $urlArray[2] . '/download?token=' . $this->AccessToken;
-			} else {
-				$DownloadInfo[DOWNLOAD_ERROR] = ERR_FILE_NO_EXIST;
-			}
-
-			$this->Url = $DownloadInfo[DOWNLOAD_URL];  
-			print('DownloadInfo: '. $DownloadInfo[DOWNLOAD_URL]);
-
-			return $DownloadInfo;
 		}
 
 		/* 
@@ -121,4 +106,62 @@
 			$obj = json_decode($body, TRUE);
 			$this->AccessToken = $obj['info']['access_token'];
 		}
+
+		private function setDownloadLink() {
+			//Check to see is http or https being used
+			if (substr($this->Url,0,7) == "http://") {
+			   $newHttp = "http://";
+			} else if (substr($this->Url,0,8) == "https://") {
+			   $newHttp = "https://";
+			} else {
+			   $DownloadInfo[DOWNLOAD_URL] = ERR_NOT_SUPPORT_TYPE;
+			   return $DownloadInfo;
+			}
+
+			$urlTidy = str_replace($newHttp,"", $this->Url); 
+			$urlArray = explode('/', $urlTidy);
+
+			$this->PutioAccessToken();
+
+			if ($urlArray[1] === 'v2') {
+				$DownloadInfo[DOWNLOAD_URL] = 'https://put.io/v2/files/' . $urlArray[3] . '/download?token=' . $this->AccessToken;
+			} elseif ($urlArray[1] === 'files' || $urlArray[1] === 'file') {
+				$DownloadInfo[DOWNLOAD_URL] = 'https://put.io/v2/files/' . $urlArray[2] . '/download?token=' . $this->AccessToken;
+			} else {
+				$DownloadInfo[DOWNLOAD_ERROR] = ERR_FILE_NO_EXIST;
+			}
+
+			return $DownloadInfo; 
+		}
+
+		private function getDownloadLink() {
+			$ret = false;
+			$DownloadInfo = $this->setDownloadLink();
+			$this->Url = $DownloadInfo[DOWNLOAD_URL];
+			print('DOWNLOAD_URL: ' . $this->Url);
+
+			$curl = curl_init();
+			curl_setopt($curl, CURLOPT_USERAGENT, DOWNLOAD_STATION_USER_AGENT);
+			curl_setopt($curl, CURLOPT_COOKIEFILE, $this->PUTIO_COOKIE);
+			curl_setopt($curl, CURLOPT_HEADER, true);
+			curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($curl, CURLOPT_URL, $this->Url);
+			//curl exec has to be called before getinfo
+			$info = curl_exec($curl);
+			$info = curl_getinfo($curl);
+			$url = curl_getinfo($curl, CURLINFO_EFFECTIVE_URL); 
+			curl_close($curl);	
+			$http_code = $info['http_code'];
+			print('http_code: '. $http_code);
+
+			//if 200 found in header - file is working and downloadable
+			if ($http_code == 200) { 
+				$DownloadInfo[DOWNLOAD_URL] = $url;
+				return $DownloadInfo[DOWNLOAD_URL];
+			} else {
+				$DownloadInfo[DOWNLOAD_ERROR] = ERR_FILE_NO_EXIST;
+				return $DownloadInfo[DOWNLOAD_ERROR];
+			}	
+		}
 	}
+?>
