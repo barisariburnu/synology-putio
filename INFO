@@ -1,10 +1,10 @@
 {
-"name": "putdotio",
-"hostprefix": "put.io",
-"displayname": "Put.io",
-"version": "1.0",
-"authentication": "yes",
-"module": "host.php",
-"class": "SynoFileHostingPutio",
-"description": "Premium account supported."
+	"name": "putdotio",
+	"hostprefix": "put.io,soon.put.io",
+	"displayname": "Putio",
+	"version": "1.0",
+	"authentication": "yes",
+	"module": "putio.php",
+	"class": "SynoFileHostingPutio",
+	"description": "Premium account supported."
 }
