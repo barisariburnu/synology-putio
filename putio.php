@@ -117,7 +117,7 @@
 			return $ret;
 		}
 
-		public function PutioAccessToken(){
+		private function PutioAccessToken(){
 			// create curl for getting access token
 			$curl = curl_init();
 			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
