@@ -136,63 +136,63 @@
 			$this->AccessToken = $obj['info']['access_token'];
 		}
 
-		private function setDownloadLink() {
-			//Check to see is http or https being used
-			$DownloadInfo = array();
+		// private function setDownloadLink() {
+		// 	//Check to see is http or https being used
+		// 	$DownloadInfo = array();
 
-			if (substr($this->Url,0,7) == "http://") {
-			   $newHttp = "http://";
-			} else if (substr($this->Url,0,8) == "https://") {
-			   $newHttp = "https://";
-			} else {
-			   $DownloadInfo[DOWNLOAD_URL] = ERR_NOT_SUPPORT_TYPE;
-			   return $DownloadInfo;
-			}
+		// 	if (substr($this->Url,0,7) == "http://") {
+		// 	   $newHttp = "http://";
+		// 	} else if (substr($this->Url,0,8) == "https://") {
+		// 	   $newHttp = "https://";
+		// 	} else {
+		// 	   $DownloadInfo[DOWNLOAD_URL] = ERR_NOT_SUPPORT_TYPE;
+		// 	   return $DownloadInfo;
+		// 	}
 
-			$urlTidy = str_replace($newHttp,"", $this->Url); 
-			$urlArray = explode('/', $urlTidy);
+		// 	$urlTidy = str_replace($newHttp,"", $this->Url); 
+		// 	$urlArray = explode('/', $urlTidy);
 
-			$this->PutioAccessToken();
+		// 	$this->PutioAccessToken();
 
-			if ($urlArray[1] === 'v2') {
-				$DownloadInfo[DOWNLOAD_URL] = 'https://put.io/v2/files/' . $urlArray[3] . '/download?token=' . $this->AccessToken;
-			} elseif ($urlArray[1] === 'files' || $urlArray[1] === 'file') {
-				$DownloadInfo[DOWNLOAD_URL] = 'https://put.io/v2/files/' . $urlArray[2] . '/download?token=' . $this->AccessToken;
-			} else {
-				$DownloadInfo[DOWNLOAD_ERROR] = ERR_FILE_NO_EXIST;
-			}
+		// 	if ($urlArray[1] === 'v2') {
+		// 		$DownloadInfo[DOWNLOAD_URL] = 'https://put.io/v2/files/' . $urlArray[3] . '/download?token=' . $this->AccessToken;
+		// 	} elseif ($urlArray[1] === 'files' || $urlArray[1] === 'file') {
+		// 		$DownloadInfo[DOWNLOAD_URL] = 'https://put.io/v2/files/' . $urlArray[2] . '/download?token=' . $this->AccessToken;
+		// 	} else {
+		// 		$DownloadInfo[DOWNLOAD_ERROR] = ERR_FILE_NO_EXIST;
+		// 	}
 
-			return $DownloadInfo; 
-		}
+		// 	return $DownloadInfo; 
+		// }
 
-		private function getDownloadLink() {
-			$ret = false;
+		// private function getDownloadLink() {
+		// 	$ret = false;
 
-			$DownloadInfo = array();
-			$DownloadInfo = $this->setDownloadLink();
-			$this->Url = $DownloadInfo[DOWNLOAD_URL];
+		// 	$DownloadInfo = array();
+		// 	$DownloadInfo = $this->setDownloadLink();
+		// 	$this->Url = $DownloadInfo[DOWNLOAD_URL];
 
-			$curl = curl_init();
-			curl_setopt($curl, CURLOPT_USERAGENT, DOWNLOAD_STATION_USER_AGENT);
-			curl_setopt($curl, CURLOPT_COOKIEFILE, $this->PUTIO_COOKIE);
-			curl_setopt($curl, CURLOPT_HEADER, true);
-			curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-			curl_setopt($curl, CURLOPT_URL, 'https://pbs.twimg.com/profile_images/478547183298293761/KOMHilrX.png');
-			//curl exec has to be called before getinfo
-			$info = curl_exec($curl);
-			$info = curl_getinfo($curl);
-			$url = curl_getinfo($curl, CURLINFO_EFFECTIVE_URL); 
-			curl_close($curl);	
-			$http_code = $info['http_code'];
+		// 	$curl = curl_init();
+		// 	curl_setopt($curl, CURLOPT_USERAGENT, DOWNLOAD_STATION_USER_AGENT);
+		// 	curl_setopt($curl, CURLOPT_COOKIEFILE, $this->PUTIO_COOKIE);
+		// 	curl_setopt($curl, CURLOPT_HEADER, true);
+		// 	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+		// 	curl_setopt($curl, CURLOPT_URL, $this->Url);
+		// 	//curl exec has to be called before getinfo
+		// 	$info = curl_exec($curl);
+		// 	$info = curl_getinfo($curl);
+		// 	$url = curl_getinfo($curl, CURLINFO_EFFECTIVE_URL); 
+		// 	curl_close($curl);	
+		// 	$http_code = $info['http_code'];
 
-			//if 200 found in header - file is working and downloadable
-			if ($http_code == 200) { 
-				$DownloadInfo[DOWNLOAD_URL] = $url;
-				return $DownloadInfo;
-			} else {
-				$DownloadInfo[DOWNLOAD_ERROR] = ERR_FILE_NO_EXIST;
-				return $DownloadInfo;
-			}	
-		}
+		// 	//if 200 found in header - file is working and downloadable
+		// 	if ($http_code == 200) { 
+		// 		$DownloadInfo[DOWNLOAD_URL] = $url;
+		// 		return $DownloadInfo;
+		// 	} else {
+		// 		$DownloadInfo[DOWNLOAD_ERROR] = ERR_FILE_NO_EXIST;
+		// 		return $DownloadInfo;
+		// 	}	
+		// }
 	}
 ?>
