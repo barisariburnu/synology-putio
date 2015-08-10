@@ -1,7 +1,6 @@
 <?php
 	define('USER_IS_PREMIUM', 6); 
 	define('LOGIN_FAIL', 4);
-	define('USER_IS_PREMIUM', 6);
 	define('ERR_FILE_NO_EXIST', 114);
 	define('DOWNLOAD_STATION_USER_AGENT', "Mozilla/4.0 (compatible; MSIE 6.1; Windows XP)");
 	define('DOWNLOAD_URL', 'downloadurl'); // Real download url
@@ -12,6 +11,7 @@
 		private $Password;
 		private $HostInfo;
 		private $AccessToken;
+		private $Login2Token;
 		private $PUTIO_COOKIE = '/tmp/putio.cookie';
 		private $PUTIO_LOGIN_URL = 'https://put.io/login';
 
@@ -99,12 +99,20 @@
 			//auth is putio logged in cookie value
 			if (FALSE != $LoginInfo && file_exists($this->PUTIO_COOKIE)) {
 				$cookieData = file_get_contents($this->PUTIO_COOKIE);
-				if(strpos($cookieData,'session2') !== false) {
+
+				if(strpos($cookieData,'login_token2') !== false) {
 					
 					// $myfile = fopen("/tmp/putio.json", "w") or die("Unable to open file!");
 					// $txt = $this->Username . '-' . $this->Password;
 					// fwrite($myfile, $txt);
 					// fclose($myfile);
+
+					foreach (explode(PHP_EOL, $cookieData) as $key => $value) {
+						if (strpos($value, "login_token2") !== false) {
+							$parsed = explode("login_token2", $value);
+							$this->Login2Token = preg_replace('/\s+/', '', $parsed[1]);
+						}
+					}
 
 					$ret = USER_IS_PREMIUM;
 					return $ret;
@@ -117,7 +125,7 @@
 			return $ret;
 		}
 
-		private function PutioAccessToken(){
+		public function PutioAccessToken(){
 			// create curl for getting access token
 			$curl = curl_init();
 			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
@@ -125,7 +133,8 @@
 			curl_setopt($curl, CURLOPT_COOKIEFILE, $this->PUTIO_COOKIE);
 			curl_setopt($curl, CURLOPT_HEADER, TRUE);
 			curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-			curl_setopt($curl, CURLOPT_URL, 'https://soon.put.io/v2/account/info?access_token=1');
+			curl_setopt($curl, CURLOPT_HTTPHEADER, array('X-Putio-LoginToken: ' . $this->Login2Token));
+			curl_setopt($curl, CURLOPT_URL, 'https://put.io/v2/account/info?access_token=1');
 			$AccessInfo = curl_exec($curl);
 			$header_size = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
 			$header = substr($AccessInfo, 0, $header_size);
