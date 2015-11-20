@@ -50,6 +50,10 @@
 					$DownloadInfo[DOWNLOAD_URL] = 'https://put.io/v2/files/' . $urlArray[3] . '/download?token=' . $this->AccessToken;
 				} elseif ($urlArray[1] === 'files' || $urlArray[1] === 'file') {
 					$DownloadInfo[DOWNLOAD_URL] = 'https://put.io/v2/files/' . $urlArray[2] . '/download?token=' . $this->AccessToken;
+				} elseif ($urlArray[1] === 'zipstream') {
+					$query = explode('?', $urlArray[2]);
+					$parameters = explode('&', $query[1]);
+					$DownloadInfo[DOWNLOAD_URL] = 'https://' . $urlArray[0] . '/zipstream/' . $query[0] . '?' . $parameters[0] . '&token=' . $this->AccessToken . '&' . $parameters[2];
 				} else {
 					$DownloadInfo[DOWNLOAD_ERROR] = ERR_FILE_NO_EXIST;
 				}
