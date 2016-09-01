@@ -1,9 +1,4 @@
 <?php
-	define('USER_IS_PREMIUM', 6); 
-	define('LOGIN_FAIL', 4);
-	define('ERR_FILE_NO_EXIST', 114);
-	define('DOWNLOAD_STATION_USER_AGENT', "Mozilla/4.0 (compatible; MSIE 6.1; Windows XP)");
-	define('DOWNLOAD_URL', 'downloadurl'); // Real download url
 	
 	class SynoFileHostingPutio {   
 		private $Url;
