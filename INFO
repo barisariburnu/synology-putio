@@ -1,8 +1,8 @@
 {
 	"name": "putdotio",
-	"hostprefix": "put.io,soon.put.io",
+	"hostprefix": "put.io",
 	"displayname": "Putio",
-	"version": "1.2",
+	"version": "1.3",
 	"authentication": "yes",
 	"module": "putio.php",
 	"class": "SynoFileHostingPutio",
