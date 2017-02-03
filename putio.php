@@ -49,11 +49,11 @@
 						$fileID = $urlArray[2];
 						$mp4Check = $urlArray[3];
 					}
-					$DownloadInfo[DOWNLOAD_URL] = 'https://put.io/v2/files/' . $fileID . ($mp4Check === 'mp4' ? '/mp4':'') . '/download?token=' . $this->AccessToken;
+					$DownloadInfo[DOWNLOAD_URL] = 'https://' . $this->Username . ':' . $this->Password . '@put.io/v2/files/' . $fileID . ($mp4Check === 'mp4' ? '/mp4':'') . '/download?token=' . $this->AccessToken;
 				} elseif ($urlArray[1] === 'zipstream') {
 					$query = explode('?', $urlArray[2]);
 					$parameters = explode('&', $query[1]);
-					$DownloadInfo[DOWNLOAD_URL] = 'https://' . $urlArray[0] . '/zipstream/' . $query[0] . '?' . $parameters[0] . '&token=' . $this->AccessToken . '&' . $parameters[2];
+					$DownloadInfo[DOWNLOAD_URL] = 'https://' . $this->Username . ':' . $this->Password . '@' . $urlArray[0] . '/zipstream/' . $query[0] . '?' . $parameters[0] . '&token=' . $this->AccessToken . '&' . $parameters[2];
 				} else {
 					$DownloadInfo[DOWNLOAD_ERROR] = ERR_FILE_NO_EXIST;
 				}
