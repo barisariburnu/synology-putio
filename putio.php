@@ -7,17 +7,24 @@
 		private $HostInfo;
 		private $AccessToken;
 		private $Login2Token;
-		private $PUTIO_COOKIE = '/tmp/putio.cookie';
+		private $PUTIO_COOKIE;
 		private $PUTIO_LOGIN_URL = 'https://put.io/login';
 		
 		public function __construct($Url, $Username, $Password, $HostInfo) {
 			$this->Url = $Url;   
 			$this->Username = $Username;
 			$this->Password = $Password;
-			$this->HostInfo = $HostInfo; // not used   
+			$this->HostInfo = $HostInfo; // not used
+			
+			// Use system temp directory for cookie file (cross-platform compatible)
+			$this->PUTIO_COOKIE = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'putio.cookie';
 		}
 		
-		//This function returns download url.
+		/**
+		 * This function returns download url.
+		 * 
+		 * @return array Download information with URL or error
+		 */
 		public function GetDownloadInfo() {
 			
 			if ($this->PutioLogin() == LOGIN_FAIL) {
@@ -62,15 +69,21 @@
 			}
 		}
 		
-		/* 
-		Always premium account type
-		*/ 
+		/**
+		 * Verify account (always premium account type)
+		 * 
+		 * @return int Login status
+		 */ 
 		public function Verify()
 		{
 			return $this->PutioLogin();
 		}
 		
-		//This function performs login action.
+		/**
+		 * This function performs login action
+		 * 
+		 * @return int Login status code
+		 */
 		private function PutioLogin() {
 			$ret = LOGIN_FAIL;
 			//Save cookie file
@@ -86,7 +99,6 @@
 			curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, FALSE);
 			curl_setopt($curl, CURLOPT_POSTFIELDS, $PostData);
 			curl_setopt($curl, CURLOPT_USERAGENT, DOWNLOAD_STATION_USER_AGENT);
-			// curl_setopt($curl, CURLOPT_POST, TRUE);
 			curl_setopt($curl, CURLOPT_COOKIEJAR, $this->PUTIO_COOKIE);
 			curl_setopt($curl, CURLOPT_HEADER, TRUE);
 			curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
@@ -106,11 +118,6 @@
 				
 				if(strpos($cookieData,'login_token2') !== false) {
 					
-					// $myfile = fopen("/tmp/putio.json", "w") or die("Unable to open file!");
-					// $txt = $this->Username . '-' . $this->Password;
-					// fwrite($myfile, $txt);
-					// fclose($myfile);
-					
 					foreach (explode(PHP_EOL, $cookieData) as $key => $value) {
 						if (strpos($value, "login_token2") !== false) {
 							$parsed = explode("login_token2", $value);
@@ -129,6 +136,11 @@
 			return $ret;
 		}
 		
+		/**
+		 * Get Putio access token using login token
+		 * 
+		 * @return void
+		 */
 		public function PutioAccessToken(){
 			// create curl for getting access token
 			$curl = curl_init();

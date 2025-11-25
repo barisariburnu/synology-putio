@@ -1,2 +1,46 @@
+# Operating System Files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
 
+# IDE and Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+.classpath
+
+# Build Files
+*.host
+putio.host
+
+# Temporary Files
+*.tmp
+*.temp
+*.log
+
+# Synology specific
+@eaDir/
+
+# PHP Files
+*.cache
+vendor/
+composer.phar
+composer.lock
+
+# Test Files
+test/
+tests/
+*.test.php
+
+# Documentation Build
+docs/_build/
+site/
